@@ -34,11 +34,7 @@ pub struct Diagnostic {
 }
 
 impl Diagnostic {
-    pub fn new(
-        code: impl Into<String>,
-        message: impl Into<String>,
-        evidence: Evidence,
-    ) -> Self {
+    pub fn new(code: impl Into<String>, message: impl Into<String>, evidence: Evidence) -> Self {
         Self {
             code: code.into(),
             message: message.into(),

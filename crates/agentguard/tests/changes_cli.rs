@@ -96,14 +96,15 @@ fn changes_handles_clean_and_non_repository_directories() {
 
     let outside = agentguard(&directory.path, &["changes"]);
     assert_eq!(outside.status.code(), Some(1));
-    assert!(
-        String::from_utf8_lossy(&outside.stderr).contains("could not inspect Git changes")
-    );
+    assert!(String::from_utf8_lossy(&outside.stderr).contains("could not inspect Git changes"));
 
     git(&directory.path, &["init", "-q"]);
     let clean = agentguard(&directory.path, &["changes"]);
     assert!(clean.status.success());
-    assert_eq!(String::from_utf8(clean.stdout).unwrap(), "No changes found.\n");
+    assert_eq!(
+        String::from_utf8(clean.stdout).unwrap(),
+        "No changes found.\n"
+    );
 }
 
 #[test]
@@ -129,5 +130,8 @@ fn cli_reports_help_and_version() {
 
     let version = agentguard(&directory.path, &["--version"]);
     assert!(version.status.success());
-    assert_eq!(String::from_utf8(version.stdout).unwrap(), "agentguard 0.1.0\n");
+    assert_eq!(
+        String::from_utf8(version.stdout).unwrap(),
+        "agentguard 0.1.0\n"
+    );
 }

@@ -76,8 +76,8 @@ fn parse_changes(output: &[u8]) -> Result<Vec<Change>, String> {
             .map_err(|_| "Git reported a path that is not valid UTF-8".to_owned())?
             .to_owned();
 
-        let has_original_path = matches!(record[0], b'R' | b'C')
-            || matches!(record[1], b'R' | b'C');
+        let has_original_path =
+            matches!(record[0], b'R' | b'C') || matches!(record[1], b'R' | b'C');
         let original_path = if has_original_path {
             let original = records
                 .next()
@@ -110,10 +110,8 @@ mod tests {
 
     #[test]
     fn parses_modified_untracked_and_renamed_files() {
-        let parsed = parse_changes(
-            b" M src/app.py\0?? new file.py\0R  src/new.py\0src/old.py\0",
-        )
-        .unwrap();
+        let parsed =
+            parse_changes(b" M src/app.py\0?? new file.py\0R  src/new.py\0src/old.py\0").unwrap();
 
         assert_eq!(
             parsed,
