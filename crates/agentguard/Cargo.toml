@@ -9,6 +9,8 @@ description = "Evidence-based verification for code changes"
 
 [dependencies]
 agentguard-core = { path = "../agentguard-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 
 [lints]
 workspace = true

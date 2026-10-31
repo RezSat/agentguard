@@ -1,4 +1,5 @@
 mod changes;
+mod check;
 
 use std::env;
 use std::process::ExitCode;
@@ -25,6 +26,7 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Some("changes") => changes::run(),
+        Some("check") => check::run(),
         Some(command) => {
             eprintln!("unknown command: {command}");
             eprintln!("Run 'agentguard --help' to see available commands.");
@@ -42,6 +44,7 @@ USAGE:
 
 COMMANDS:
     changes          List staged, unstaged, and untracked Git files
+    check            Lint changed Python files with Ruff
     version          Print version information
 
 OPTIONS:

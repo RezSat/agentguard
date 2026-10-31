@@ -5,6 +5,7 @@
 - Rust stable
 - Cargo
 - Git
+- Ruff on PATH (for `agentguard check`)
 
 ## Build and test
 
@@ -21,9 +22,12 @@ Run the CLI from a Git repository:
 cargo run -p agentguard -- --help
 cargo run -p agentguard -- --version
 cargo run -p agentguard -- changes
+cargo run -p agentguard -- check
 ```
 
 `changes` reads the current working tree through Git's NUL-delimited porcelain status format. It does not edit source files or run project code. Git paths that are not valid UTF-8 currently produce an error rather than being silently modified in the report.
+
+The `check` command selects changed Python files from Git status and invokes `ruff check --no-fix --no-fix-only --no-cache --output-format=json`. Ruff exit code 1 indicates lint findings; exit code 2 indicates tool failure. AgentGuard does not execute the inspected Python code, modify files, or claim that passing the selected lint checks proves correctness. Deleted files and unchanged files are outside this command's scope.
 
 ## Code style
 

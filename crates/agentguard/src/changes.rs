@@ -1,10 +1,10 @@
 use std::process::{Command, ExitCode};
 
 #[derive(Debug, Eq, PartialEq)]
-struct Change {
-    status: [u8; 2],
-    path: String,
-    original_path: Option<String>,
+pub(crate) struct Change {
+    pub(crate) status: [u8; 2],
+    pub(crate) path: String,
+    pub(crate) original_path: Option<String>,
 }
 
 pub(crate) fn run() -> ExitCode {
@@ -31,7 +31,7 @@ pub(crate) fn run() -> ExitCode {
     }
 }
 
-fn collect_changes() -> Result<Vec<Change>, String> {
+pub(crate) fn collect_changes() -> Result<Vec<Change>, String> {
     let output = Command::new("git")
         .args([
             "--no-optional-locks",
