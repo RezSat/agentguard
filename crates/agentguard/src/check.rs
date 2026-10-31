@@ -103,7 +103,7 @@ fn run_ruff(root: &Path, files: &[String]) -> Result<Vec<Diagnostic>, String> {
             "--output-format=json",
             "--",
         ])
-        .args(&files)
+        .args(files)
         .current_dir(&root)
         .output()
         .map_err(|error| {
