@@ -11,7 +11,7 @@ The workspace starts with two crates:
 
 The core crate has no third-party dependencies. This is deliberate while the shared model is still small.
 
-The CLI's `changes` command uses system Git to inspect a working tree. `check` selects changed Python files from that status output. `audit` runs Ruff from the Git repository root and lets Ruff select files according to its configuration, including exclusions. Both commands use the same JSON-to-diagnostic conversion. Ruff's static findings are not proof of runtime failures. Neither command executes Python code or modifies application source files.
+The CLI's `changes` command uses system Git to inspect a working tree. `check` selects changed Python and JavaScript/TypeScript files from that status output. `audit` detects supported languages from tracked and non-ignored untracked Git paths and lets Ruff and ESLint select files according to their own configurations. Each analyzer's JSON findings are mapped to diagnostic types without interpreting them as runtime proof. Missing tools and failed checks are reported distinctly from clean checks. ESLint can execute project configuration and plugins; AgentGuard does not install dependencies or apply fixes.
 
 ## Diagnostic evidence
 
@@ -41,7 +41,7 @@ Each step should be independently testable. Tool adapters should preserve the or
 
 Language-specific frontends will own language semantics. A shared representation should contain only information that can be represented without misleading users. Language-specific facts must remain available rather than being discarded to force a universal model.
 
-Python is the first planned frontend. TypeScript can follow once the first workflow is useful.
+Python checks use Ruff; JavaScript and TypeScript checks use the target project's ESLint configuration. Neither integration performs language-wide semantic verification.
 
 ## Design constraints
 

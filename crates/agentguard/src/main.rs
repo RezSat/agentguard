@@ -1,5 +1,6 @@
 mod changes;
 mod check;
+mod eslint;
 
 use std::env;
 use std::process::ExitCode;
@@ -45,8 +46,8 @@ USAGE:
 
 COMMANDS:
     changes          List staged, unstaged, and untracked Git files
-    check            Lint changed Python files with Ruff
-    audit            Lint repository Python files with Ruff
+    check            Lint changed Python and JavaScript/TypeScript files
+    audit            Lint repository Python and JavaScript/TypeScript files
     version          Print version information
 
 OPTIONS:

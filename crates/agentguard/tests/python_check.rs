@@ -149,7 +149,7 @@ fn skips_non_python_changes_without_running_ruff() {
     assert!(output.status.success());
     assert_eq!(
         String::from_utf8(output.stdout).unwrap(),
-        "No changed Python files to check.\n"
+        "No changed Python or JavaScript/TypeScript files to check.\n"
     );
 }
 
@@ -211,6 +211,7 @@ fn audit_scans_a_clean_working_tree() {
 #[test]
 fn audit_reports_clean_scope_without_claiming_correctness() {
     let repo = TempRepo::new();
+    fs::write(repo.path.join("clean.py"), "answer = 42\n").unwrap();
     let bin = repo.make_ruff("[]", "", 0);
 
     let output = repo.audit(Some(&bin));

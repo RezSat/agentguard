@@ -5,7 +5,8 @@
 - Rust stable
 - Cargo
 - Git
-- Ruff on PATH (for `agentguard check` and `agentguard audit`)
+- Ruff on PATH when checking Python files
+- ESLint installed locally in the target project (preferred) or on PATH, with a working configuration for JavaScript/TypeScript files
 
 ## Build and test
 
@@ -28,9 +29,9 @@ cargo run -p agentguard -- audit
 
 `changes` reads the current working tree through Git's NUL-delimited porcelain status format. It does not edit source files or run project code. Git paths that are not valid UTF-8 currently produce an error rather than being silently modified in the report.
 
-The `check` command selects changed Python files from Git status and invokes `ruff check --no-fix --no-fix-only --no-cache --output-format=json`. Ruff exit code 1 indicates lint findings; exit code 2 indicates tool failure. AgentGuard does not execute the inspected Python code, modify files, or claim that passing the selected lint checks proves correctness. Deleted files and unchanged files are outside this command's scope.
+The `check` command selects changed Python and JavaScript/TypeScript files from Git status. Python files are passed to `ruff check --no-fix --no-fix-only --no-cache --output-format=json`. JavaScript/TypeScript files are passed to ESLint using its JSON formatter. Both commands avoid automatic fixes. ESLint uses the target project's configuration and plugins. Exit code 1 means findings; exit code 2 means an analyzer could not complete. A check of only one language does not require tools for the other language.
 
-The `audit` command uses the same Ruff integration, but passes `.` from the Git repository root instead of selecting changed files. It therefore works on clean Git working trees. Ruff's normal include and exclusion rules determine which Python files it scans. The result is a Ruff static-analysis report, not an application-wide correctness or security guarantee.
+The `audit` command detects source languages from tracked and non-ignored untracked Git files, then runs the relevant analyzer(s) against `.` from the repository root. Ruff and ESLint use their own include and exclusion configuration. Skipped languages are not claimed to have been checked. No dependencies are installed. ESLint loads and executes project configuration/plugins, so use an isolated environment for untrusted repositories. These are static-analysis results, not application correctness or security guarantees.
 
 ## Code style
 

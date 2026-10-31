@@ -17,6 +17,8 @@ jobs:
           components: rustfmt, clippy
       - name: Install Ruff for Python integration tests
         run: python -m pip install ruff==0.14.6
+      - name: Install ESLint for JavaScript integration tests
+        run: npm install --global eslint@9.39.1
       - name: Build
         run: cargo build --workspace
       - name: Test
