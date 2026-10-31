@@ -111,7 +111,7 @@ fn changes_handles_clean_and_non_repository_directories() {
 fn cli_rejects_unknown_and_extra_arguments() {
     let directory = TemporaryDirectory::new();
 
-    let unknown = agentguard(&directory.path, &["audit"]);
+    let unknown = agentguard(&directory.path, &["not-a-command"]);
     assert_eq!(unknown.status.code(), Some(2));
     assert!(String::from_utf8_lossy(&unknown.stderr).contains("unknown command"));
 
