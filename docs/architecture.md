@@ -11,6 +11,8 @@ The workspace starts with two crates:
 
 The core crate has no third-party dependencies. This is deliberate while the shared model is still small.
 
+The CLI's `changes` command uses system Git to inspect a working tree. It reports file status without parsing source code or running analyzers. This is a first step toward selecting the code that a future verification pass will examine.
+
 ## Diagnostic evidence
 
 A diagnostic records both a finding and the kind of evidence behind it:

@@ -1,3 +1,5 @@
+mod changes;
+
 use std::env;
 use std::process::ExitCode;
 
@@ -5,8 +7,15 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() -> ExitCode {
     let mut args = env::args().skip(1);
+    let command = args.next();
 
-    match args.next().as_deref() {
+    if let Some(unexpected) = args.next() {
+        eprintln!("unexpected argument: {unexpected}");
+        eprintln!("Run 'agentguard --help' to see available commands.");
+        return ExitCode::from(2);
+    }
+
+    match command.as_deref() {
         Some("--help" | "-h") | None => {
             print_help();
             ExitCode::SUCCESS
@@ -15,6 +24,7 @@ fn main() -> ExitCode {
             println!("agentguard {VERSION}");
             ExitCode::SUCCESS
         }
+        Some("changes") => changes::run(),
         Some(command) => {
             eprintln!("unknown command: {command}");
             eprintln!("Run 'agentguard --help' to see available commands.");
@@ -27,15 +37,15 @@ fn print_help() {
     println!(
         "AgentGuard {VERSION}
 
-Reliable verification for AI-generated software.
-
 USAGE:
-    agentguard [OPTIONS]
+    agentguard [COMMAND]
+
+COMMANDS:
+    changes          List staged, unstaged, and untracked Git files
+    version          Print version information
 
 OPTIONS:
     -h, --help       Print this help
-    -V, --version    Print version information
-
-More commands will be added as the verification pipeline takes shape."
+    -V, --version    Print version information"
     );
 }

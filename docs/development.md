@@ -4,6 +4,7 @@
 
 - Rust stable
 - Cargo
+- Git
 
 ## Build and test
 
@@ -14,12 +15,15 @@ cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 ```
 
-Run the CLI:
+Run the CLI from a Git repository:
 
 ```sh
 cargo run -p agentguard -- --help
 cargo run -p agentguard -- --version
+cargo run -p agentguard -- changes
 ```
+
+`changes` reads the current working tree through Git's NUL-delimited porcelain status format. It does not edit source files or run project code. Git paths that are not valid UTF-8 currently produce an error rather than being silently modified in the report.
 
 ## Code style
 
