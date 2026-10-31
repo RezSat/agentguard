@@ -117,17 +117,17 @@ mod tests {
             parsed,
             vec![
                 Change {
-                    status: [b' ', b'M'],
+                    status: *b" M",
                     path: "src/app.py".to_owned(),
                     original_path: None,
                 },
                 Change {
-                    status: [b'?', b'?'],
+                    status: *b"??",
                     path: "new file.py".to_owned(),
                     original_path: None,
                 },
                 Change {
-                    status: [b'R', b' '],
+                    status: *b"R ",
                     path: "src/new.py".to_owned(),
                     original_path: Some("src/old.py".to_owned()),
                 },
