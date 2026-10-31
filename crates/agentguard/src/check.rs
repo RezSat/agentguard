@@ -55,11 +55,7 @@ fn report_findings(diagnostics: Vec<Diagnostic>) -> ExitCode {
             .expect("Ruff provides a location");
         println!(
             "{:?}:{}:{}: Ruff {} (static finding): {}",
-            location.path,
-            location.line,
-            location.column,
-            diagnostic.code,
-            diagnostic.message
+            location.path, location.line, location.column, diagnostic.code, diagnostic.message
         );
     }
     println!("Ruff: {} finding(s).", diagnostics.len());
@@ -146,8 +142,6 @@ fn run_ruff(root: &Path, files: &[String]) -> Result<Vec<Diagnostic>, String> {
 
     Ok(diagnostics)
 }
-
-
 
 fn repository_root() -> Result<PathBuf, String> {
     let output = Command::new("git")
