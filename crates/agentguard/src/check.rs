@@ -33,10 +33,17 @@ pub(crate) fn run() -> ExitCode {
         }
         Ok(CheckOutcome::Findings(diagnostics)) => {
             for diagnostic in &diagnostics {
-                let location = diagnostic.location.as_ref().expect("Ruff provides a location");
+                let location = diagnostic
+                    .location
+                    .as_ref()
+                    .expect("Ruff provides a location");
                 println!(
                     "{:?}:{}:{}: Ruff {} (static finding): {}",
-                    location.path, location.line, location.column, diagnostic.code, diagnostic.message
+                    location.path,
+                    location.line,
+                    location.column,
+                    diagnostic.code,
+                    diagnostic.message
                 );
             }
             println!("Ruff: {} finding(s).", diagnostics.len());
@@ -75,12 +82,18 @@ fn check_changed_python() -> Result<CheckOutcome, String> {
         .args(&files)
         .current_dir(&root)
         .output()
-        .map_err(|error| format!("could not start Ruff ({error}); install Ruff and make it available on PATH"))?;
+        .map_err(|error| {
+            format!("could not start Ruff ({error}); install Ruff and make it available on PATH")
+        })?;
 
     let status = output.status.code();
     if !matches!(status, Some(0 | 1)) {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("Ruff failed (status {:?}): {}", status, stderr.trim()));
+        return Err(format!(
+            "Ruff failed (status {:?}): {}",
+            status,
+            stderr.trim()
+        ));
     }
 
     let findings: Vec<RuffFinding> = serde_json::from_slice(&output.stdout)
@@ -121,7 +134,10 @@ fn repository_root() -> Result<PathBuf, String> {
         .map_err(|error| format!("could not start Git: {error}"))?;
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("could not locate Git repository: {}", stderr.trim()));
+        return Err(format!(
+            "could not locate Git repository: {}",
+            stderr.trim()
+        ));
     }
 
     let root = std::str::from_utf8(&output.stdout)
@@ -166,8 +182,16 @@ mod tests {
     fn does_not_scan_missing_or_non_python_files() {
         let root = std::env::temp_dir().join("agentguard-nonexistent-fixture");
         let changes = vec![
-            Change { path: "removed.py".to_owned(), status: *b" D", original_path: None },
-            Change { path: "README.md".to_owned(), status: *b"??", original_path: None },
+            Change {
+                path: "removed.py".to_owned(),
+                status: *b" D",
+                original_path: None,
+            },
+            Change {
+                path: "README.md".to_owned(),
+                status: *b"??",
+                original_path: None,
+            },
         ];
         assert!(changed_python_paths(&root, &changes).is_empty());
     }
