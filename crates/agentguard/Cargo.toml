@@ -1,0 +1,13 @@
+[package]
+name = "agentguard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Evidence-based verification for code changes"
+
+[dependencies]
+agentguard-core = { path = "../agentguard-core" }
+
+[lints]
+workspace = true
