@@ -123,10 +123,17 @@ fn report(tool: &str, scope: &str, result: Result<Vec<Diagnostic>, String>) -> u
                 if let Some(location) = diagnostic.location {
                     println!(
                         "{:?}:{}:{}: {tool} {} (static finding): {}",
-                        location.path, location.line, location.column, diagnostic.code, diagnostic.message
+                        location.path,
+                        location.line,
+                        location.column,
+                        diagnostic.code,
+                        diagnostic.message
                     );
                 } else {
-                    println!("{tool} {} (static finding): {}", diagnostic.code, diagnostic.message);
+                    println!(
+                        "{tool} {} (static finding): {}",
+                        diagnostic.code, diagnostic.message
+                    );
                 }
             }
             println!("{tool}: {count} finding(s).");

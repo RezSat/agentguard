@@ -49,7 +49,10 @@ impl Fixture {
         cmd.arg(mode).current_dir(&self.root);
         if let Some(bin) = bin {
             let inherited = std::env::var_os("PATH").unwrap_or_default();
-            cmd.env("PATH", format!("{}:{}", bin.display(), inherited.to_string_lossy()));
+            cmd.env(
+                "PATH",
+                format!("{}:{}", bin.display(), inherited.to_string_lossy()),
+            );
         }
         cmd.output().unwrap()
     }
@@ -95,7 +98,11 @@ fn git(root: &Path, args: &[&str]) {
 fn check_reports_eslint_warnings_even_when_eslint_exits_zero() {
     let fixture = Fixture::new();
     fs::create_dir(fixture.root.join("src")).unwrap();
-    fs::write(fixture.root.join("src/App.tsx"), "export default function App() {}\n").unwrap();
+    fs::write(
+        fixture.root.join("src/App.tsx"),
+        "export default function App() {}\n",
+    )
+    .unwrap();
     let bin = fixture.tool(
         "eslint",
         r#"[{"filePath":"src/App.tsx","messages":[{"ruleId":"@typescript-eslint/no-unused-vars","message":"Unused value","severity":1,"line":1,"column":5}]}]"#,
@@ -105,7 +112,12 @@ fn check_reports_eslint_warnings_even_when_eslint_exits_zero() {
     let output = fixture.command("check", Some(&bin));
     assert_eq!(output.status.code(), Some(1));
     let stdout = String::from_utf8(output.stdout).unwrap();
-    assert!(stdout.contains("ESLint @typescript-eslint/no-unused-vars (static finding): warning: Unused value"), "{stdout}");
+    assert!(
+        stdout.contains(
+            "ESLint @typescript-eslint/no-unused-vars (static finding): warning: Unused value"
+        ),
+        "{stdout}"
+    );
     assert!(stdout.contains("\"src/App.tsx\":1:5:"), "{stdout}");
     let args = fs::read_to_string(fixture.root.join("eslint-args.txt")).unwrap();
     assert!(args.contains("--format\njson\n"), "{args}");
@@ -145,7 +157,10 @@ fn mixed_language_checks_continue_after_one_tool_fails() {
     assert_eq!(output.status.code(), Some(2));
     let stdout = String::from_utf8(output.stdout).unwrap();
     let stderr = String::from_utf8(output.stderr).unwrap();
-    assert!(stdout.contains("ESLint no-undef (static finding): error: Unknown name"), "{stdout}");
+    assert!(
+        stdout.contains("ESLint no-undef (static finding): error: Unknown name"),
+        "{stdout}"
+    );
     assert!(stderr.contains("Ruff check could not complete"), "{stderr}");
     assert!(fixture.root.join("ruff-args.txt").exists());
     assert!(fixture.root.join("eslint-args.txt").exists());
