@@ -1,51 +1,33 @@
 # AgentGuard
 
-Reliable verification for AI-generated software.
+AgentGuard is an open-source tool for checking code changes, with a focus on changes made by AI coding agents.
 
-AgentGuard is an open-source project for checking code changes with evidence developers can inspect. The goal is not to have one AI model review another. The goal is to combine established analysis tools, targeted tests, and explicit verification results in a workflow that developers and coding agents can use.
-
-The project is at an early stage. It does not yet verify application code.
-
-## Principles
-
-- **Evidence over confidence scores.** Every finding should explain what was checked and what evidence supports it.
-- **Honest results.** A reproduced failure, a static-analysis warning, and a proven property are different things. AgentGuard must keep those distinctions visible.
-- **Useful before clever.** Prefer a small feature that works reliably over a broad feature that only works in a demo.
-- **Local first.** The basic workflow should not require an account, hosted service, or LLM API.
-- **Readable code.** Keep the design understandable. Add abstractions when they solve a real problem.
-- **Measure before optimizing.** Correctness and maintainability come first. Optimize against real workloads and benchmarks.
-
-## Current status
-
-The first development milestone is a code-change verification pipeline:
-
-1. Read a Git working tree and identify changed files.
-2. Determine which parts of the program are affected.
-3. Run suitable analysis and tests.
-4. Normalize results into a consistent diagnostic format.
-5. Report what was checked, what failed, and what remains unknown.
-
-The implementation will grow in small, testable steps. Language support will be added through dedicated frontends rather than pretending that every language has identical semantics.
+The project is in its early stages. The current codebase contains a Rust workspace, a basic command-line interface, and shared types for diagnostics. It does not analyse or verify source code yet.
 
 ## Development
 
-The workspace requires a stable Rust toolchain.
+You need a stable Rust toolchain.
+
+Build the workspace:
 
 ```sh
 cargo build --workspace
+```
+
+Run the tests:
+
+```sh
 cargo test --workspace
+```
+
+Run the CLI:
+
+```sh
 cargo run -p agentguard -- --help
 ```
 
-## Project status
-
-AgentGuard is experimental software. Do not treat its output as a guarantee that code is free of defects. Its reports should state the scope and limitations of each check.
+At this stage, the CLI supports help and version information only.
 
 ## License
 
-Licensed under either of
-
-- Apache License, Version 2.0
-- MIT license
-
-at your option. See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT).
+AgentGuard is available under either the MIT license or Apache License 2.0. You may choose which license applies to your use. See [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE).
