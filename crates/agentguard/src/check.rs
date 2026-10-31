@@ -31,29 +31,44 @@ pub(crate) fn run() -> ExitCode {
             println!("Ruff: no findings in {count} changed Python file(s).");
             ExitCode::SUCCESS
         }
-        Ok(CheckOutcome::Findings(diagnostics)) => {
-            for diagnostic in &diagnostics {
-                let location = diagnostic
-                    .location
-                    .as_ref()
-                    .expect("Ruff provides a location");
-                println!(
-                    "{:?}:{}:{}: Ruff {} (static finding): {}",
-                    location.path,
-                    location.line,
-                    location.column,
-                    diagnostic.code,
-                    diagnostic.message
-                );
-            }
-            println!("Ruff: {} finding(s).", diagnostics.len());
-            ExitCode::from(1)
-        }
-        Err(error) => {
-            eprintln!("Python check could not complete: {error}");
-            ExitCode::from(2)
-        }
+        Ok(CheckOutcome::Findings(diagnostics)) => report_findings(diagnostics),
+        Err(error) => report_error(error),
     }
+}
+
+pub(crate) fn run_audit() -> ExitCode {
+    match repository_root().and_then(|root| run_ruff(&root, &[".".to_owned()])) {
+        Ok(diagnostics) if diagnostics.is_empty() => {
+            println!("Ruff: no findings in repository scope (Ruff exclusions apply).");
+            ExitCode::SUCCESS
+        }
+        Ok(diagnostics) => report_findings(diagnostics),
+        Err(error) => report_error(error),
+    }
+}
+
+fn report_findings(diagnostics: Vec<Diagnostic>) -> ExitCode {
+    for diagnostic in &diagnostics {
+        let location = diagnostic
+            .location
+            .as_ref()
+            .expect("Ruff provides a location");
+        println!(
+            "{:?}:{}:{}: Ruff {} (static finding): {}",
+            location.path,
+            location.line,
+            location.column,
+            diagnostic.code,
+            diagnostic.message
+        );
+    }
+    println!("Ruff: {} finding(s).", diagnostics.len());
+    ExitCode::from(1)
+}
+
+fn report_error(error: String) -> ExitCode {
+    eprintln!("Python check could not complete: {error}");
+    ExitCode::from(2)
 }
 
 enum CheckOutcome {
@@ -70,6 +85,15 @@ fn check_changed_python() -> Result<CheckOutcome, String> {
         return Ok(CheckOutcome::NoFiles);
     }
 
+    let diagnostics = run_ruff(&root, &files)?;
+    if diagnostics.is_empty() {
+        Ok(CheckOutcome::Clean(files.len()))
+    } else {
+        Ok(CheckOutcome::Findings(diagnostics))
+    }
+}
+
+fn run_ruff(root: &Path, files: &[String]) -> Result<Vec<Diagnostic>, String> {
     let output = Command::new("ruff")
         .args([
             "check",
@@ -102,10 +126,6 @@ fn check_changed_python() -> Result<CheckOutcome, String> {
         return Err("Ruff exited with status 1 but returned no findings".to_owned());
     }
 
-    if findings.is_empty() {
-        return Ok(CheckOutcome::Clean(files.len()));
-    }
-
     let diagnostics = findings
         .into_iter()
         .map(|finding| {
@@ -124,8 +144,10 @@ fn check_changed_python() -> Result<CheckOutcome, String> {
         })
         .collect();
 
-    Ok(CheckOutcome::Findings(diagnostics))
+    Ok(diagnostics)
 }
+
+
 
 fn repository_root() -> Result<PathBuf, String> {
     let output = Command::new("git")

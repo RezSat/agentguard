@@ -47,8 +47,16 @@ impl TempRepo {
     }
 
     fn check(&self, bin: Option<&Path>) -> Output {
+        self.run("check", bin)
+    }
+
+    fn audit(&self, bin: Option<&Path>) -> Output {
+        self.run("audit", bin)
+    }
+
+    fn run(&self, subcommand: &str, bin: Option<&Path>) -> Output {
         let mut command = Command::new(env!("CARGO_BIN_EXE_agentguard"));
-        command.arg("check").current_dir(&self.path);
+        command.arg(subcommand).current_dir(&self.path);
         if let Some(bin) = bin {
             let path = std::env::var_os("PATH").unwrap_or_default();
             command.env(
@@ -154,6 +162,100 @@ fn real_ruff_reports_an_unused_import_when_installed() {
     let repo = TempRepo::new();
     fs::write(repo.path.join("bad.py"), "import os\n").unwrap();
     let output = repo.check(None);
+    assert_eq!(output.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&output.stdout).contains("Ruff F401"));
+}
+
+#[test]
+fn audit_scans_a_clean_working_tree() {
+    let repo = TempRepo::new();
+    fs::write(repo.path.join("committed.py"), "import os\n").unwrap();
+    git(&repo.path, &["add", "."]);
+    git(
+        &repo.path,
+        &[
+            "-c",
+            "user.name=AgentGuard tests",
+            "-c",
+            "user.email=tests@example.invalid",
+            "commit",
+            "-q",
+            "-m",
+            "initial",
+        ],
+    );
+
+    let bin = repo.make_ruff(
+        r#"[{"code":"F401","message":"unused import","filename":"committed.py","location":{"row":1,"column":1}}]"#,
+        "",
+        1,
+    );
+
+    let changed = repo.check(Some(&bin));
+    assert!(changed.status.success());
+    assert_eq!(
+        String::from_utf8(changed.stdout).unwrap(),
+        "No changed Python files to check.\n"
+    );
+    assert!(!repo.path.join("ruff-args.txt").exists());
+
+    let audit = repo.audit(Some(&bin));
+    assert_eq!(audit.status.code(), Some(1));
+    let stdout = String::from_utf8(audit.stdout).unwrap();
+    assert!(stdout.contains("Ruff F401 (static finding): unused import"));
+    let args = fs::read_to_string(repo.path.join("ruff-args.txt")).unwrap();
+    assert!(args.ends_with("--\n.\n"), "{args}");
+    assert!(!args.contains("committed.py"), "{args}");
+}
+
+#[test]
+fn audit_reports_clean_scope_without_claiming_correctness() {
+    let repo = TempRepo::new();
+    let bin = repo.make_ruff("[]", "", 0);
+
+    let output = repo.audit(Some(&bin));
+    assert!(output.status.success());
+    assert_eq!(
+        String::from_utf8(output.stdout).unwrap(),
+        "Ruff: no findings in repository scope (Ruff exclusions apply).\n"
+    );
+}
+
+#[test]
+fn audit_propagates_ruff_configuration_failure() {
+    let repo = TempRepo::new();
+    let bin = repo.make_ruff("[]", "invalid Ruff configuration", 2);
+
+    let output = repo.audit(Some(&bin));
+    assert_eq!(output.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("invalid Ruff configuration"));
+    assert!(output.stdout.is_empty());
+}
+
+#[test]
+fn real_ruff_audits_committed_python_files_when_installed() {
+    if Command::new("ruff").arg("--version").output().is_err() {
+        return;
+    }
+
+    let repo = TempRepo::new();
+    fs::write(repo.path.join("committed.py"), "import os\n").unwrap();
+    git(&repo.path, &["add", "."]);
+    git(
+        &repo.path,
+        &[
+            "-c",
+            "user.name=AgentGuard tests",
+            "-c",
+            "user.email=tests@example.invalid",
+            "commit",
+            "-q",
+            "-m",
+            "initial",
+        ],
+    );
+
+    let output = repo.audit(None);
     assert_eq!(output.status.code(), Some(1));
     assert!(String::from_utf8_lossy(&output.stdout).contains("Ruff F401"));
 }

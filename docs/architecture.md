@@ -11,7 +11,7 @@ The workspace starts with two crates:
 
 The core crate has no third-party dependencies. This is deliberate while the shared model is still small.
 
-The CLI's `changes` command uses system Git to inspect a working tree. `check` selects changed Python files from that status output, runs an installed Ruff executable, and maps its JSON findings into the shared diagnostic types. Ruff's static findings are not proof of runtime failures. The command does not execute Python code or modify application source files.
+The CLI's `changes` command uses system Git to inspect a working tree. `check` selects changed Python files from that status output. `audit` runs Ruff from the Git repository root and lets Ruff select files according to its configuration, including exclusions. Both commands use the same JSON-to-diagnostic conversion. Ruff's static findings are not proof of runtime failures. Neither command executes Python code or modifies application source files.
 
 ## Diagnostic evidence
 

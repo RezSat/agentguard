@@ -27,6 +27,7 @@ fn main() -> ExitCode {
         }
         Some("changes") => changes::run(),
         Some("check") => check::run(),
+        Some("audit") => check::run_audit(),
         Some(command) => {
             eprintln!("unknown command: {command}");
             eprintln!("Run 'agentguard --help' to see available commands.");
@@ -45,6 +46,7 @@ USAGE:
 COMMANDS:
     changes          List staged, unstaged, and untracked Git files
     check            Lint changed Python files with Ruff
+    audit            Lint repository Python files with Ruff
     version          Print version information
 
 OPTIONS:
