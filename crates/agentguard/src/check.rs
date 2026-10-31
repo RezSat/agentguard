@@ -100,7 +100,7 @@ fn run_ruff(root: &Path, files: &[String]) -> Result<Vec<Diagnostic>, String> {
             "--",
         ])
         .args(files)
-        .current_dir(&root)
+        .current_dir(root)
         .output()
         .map_err(|error| {
             format!("could not start Ruff ({error}); install Ruff and make it available on PATH")
@@ -126,7 +126,7 @@ fn run_ruff(root: &Path, files: &[String]) -> Result<Vec<Diagnostic>, String> {
         .into_iter()
         .map(|finding| {
             let path = Path::new(&finding.filename);
-            let displayed_path = path.strip_prefix(&root).unwrap_or(path);
+            let displayed_path = path.strip_prefix(root).unwrap_or(path);
             Diagnostic::new(
                 finding.code.unwrap_or_else(|| "unknown".to_owned()),
                 finding.message,
