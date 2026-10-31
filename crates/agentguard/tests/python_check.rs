@@ -195,7 +195,7 @@ fn audit_scans_a_clean_working_tree() {
     assert!(changed.status.success());
     assert_eq!(
         String::from_utf8(changed.stdout).unwrap(),
-        "No changed Python files to check.\n"
+        "No changed Python or JavaScript/TypeScript files to check.\n"
     );
     assert!(!repo.path.join("ruff-args.txt").exists());
 
@@ -225,6 +225,7 @@ fn audit_reports_clean_scope_without_claiming_correctness() {
 #[test]
 fn audit_propagates_ruff_configuration_failure() {
     let repo = TempRepo::new();
+    fs::write(repo.path.join("bad.py"), "import os\n").unwrap();
     let bin = repo.make_ruff("[]", "invalid Ruff configuration", 2);
 
     let output = repo.audit(Some(&bin));
